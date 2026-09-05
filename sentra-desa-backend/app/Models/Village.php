@@ -46,6 +46,8 @@ class Village extends Model
             'longitude' => 'decimal:8',
             'area_size' => 'decimal:2',
         ];
+    }
+
     public function resolveRouteBinding($value, $field = null)
     {
         return $this->where('id', $value)
