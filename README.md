@@ -3,8 +3,11 @@
 > Platform Transformasi Digital Desa — Integrasi UMKM, Potensi Desa, Desa Wisata & Layanan Desa dalam Satu Ekosistem.
 
 ![Laravel](https://img.shields.io/badge/Laravel-12-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)
-![Flutter](https://img.shields.io/badge/Flutter-3.10-02569B?style=for-the-badge&logo=flutter&logoColor=white)
-![PHP](https://img.shields.io/badge/PHP-8.4-777BB4?style=for-the-badge&logo=php&logoColor=white)
+![Next.js](https://img.shields.io/badge/Next.js-14.2-000000?style=for-the-badge&logo=next.js&logoColor=white)
+![React](https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react&logoColor=black)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.4-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
+![PHP](https://img.shields.io/badge/PHP-8.2%2F8.4-777BB4?style=for-the-badge&logo=php&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
 ![Filament](https://img.shields.io/badge/Filament-3.3-FDAE4B?style=for-the-badge&logo=laravel&logoColor=white)
 
@@ -20,7 +23,7 @@
 - [Prasyarat](#prasyarat)
 - [Instalasi & Setup](#instalasi--setup)
   - [Backend (Laravel)](#backend-laravel)
-  - [Frontend (Flutter Web)](#frontend-flutter-web)
+  - [Frontend (Next.js)](#frontend-nextjs)
 - [Deployment (Production)](#deployment-production)
 - [Role & Permission (RBAC)](#role--permission-rbac)
 - [API Endpoints](#api-endpoints)
@@ -60,10 +63,10 @@ Superadmin (Pusat/Kementerian)
 │                    sentradesa.id                     │
 ├──────────────┬──────────────┬───────────────────────┤
 │  /           │  /admin      │  /api                 │
-│  Flutter Web │  Filament    │  Laravel API          │
-│  (SPA)       │  Admin Panel │  (REST + Sanctum)     │
+│  Next.js     │  Filament    │  Laravel API          │
+│  (SSG Export)│  Admin Panel │  (REST + Sanctum)     │
 ├──────────────┴──────────────┴───────────────────────┤
-│              Laravel 12 + PHP 8.4 FPM               │
+│              Laravel 12 + PHP 8.2/8.4 FPM           │
 ├─────────────────────────────────────────────────────┤
 │              MySQL 8.0 Database                     │
 │              (Geospatial Hierarchy)                  │
@@ -72,9 +75,9 @@ Superadmin (Pusat/Kementerian)
 
 | URL Path | Service | Keterangan |
 |----------|---------|------------|
-| `/` | Flutter Web | Landing page & public marketplace |
-| `/admin` | Filament 3.3 | Dashboard admin (RBAC) |
-| `/api/v1/*` | Laravel REST API | Backend API untuk Flutter |
+| `/` | Next.js (SSG Export) | Landing page & marketplace publik desa |
+| `/admin` | Filament 3.3 | Dashboard admin & manajemen data (RBAC) |
+| `/api/v1/*` | Laravel REST API | Backend API untuk Next.js Frontend |
 
 ---
 
@@ -110,9 +113,11 @@ Superadmin (Pusat/Kementerian)
 ### Frontend
 | Teknologi | Versi | Fungsi |
 |-----------|-------|--------|
-| Flutter | 3.10+ | Framework Frontend |
-| Dart | 3.x | Bahasa Pemrograman |
-| HTTP Package | latest | REST API Client |
+| Next.js | 14.2+ | Framework Frontend (App Router, SSG) |
+| React | 18.x | UI Library |
+| TypeScript | 5.8+ | Bahasa Pemrograman (Type Safety) |
+| Tailwind CSS | 3.4+ | Utility-first CSS Styling |
+| Lucide React | latest | Icon System |
 
 ### Infrastructure
 | Teknologi | Fungsi |
@@ -145,18 +150,18 @@ sentra-desa/
 │   │   └── web.php                 # Web routes
 │   ├── resources/views/            # Blade templates
 │   └── public/                     # Public assets
-├── sentra_desa/                    # Flutter Web Frontend
-│   ├── lib/
-│   │   ├── main.dart               # Entry point
-│   │   ├── config/                 # API config & app settings
-│   │   ├── models/                 # Data models
-│   │   ├── pages/                  # UI pages/screens
-│   │   ├── repositories/           # Data repositories
-│   │   ├── services/               # API services
-│   │   └── widgets/                # Reusable widgets
-│   ├── assets/images/              # Static images
-│   ├── web/                        # Web-specific config
-│   └── build/web/                  # Production build output
+├── sentra-desa-frontend/           # Next.js 14 Frontend (Static Export)
+│   ├── src/
+│   │   ├── app/                    # Next.js App Router (pages & layouts)
+│   │   ├── application/            # Use cases & business logic
+│   │   ├── domain/                 # Entity types & repository contracts
+│   │   ├── infrastructure/         # HTTP client & Laravel API repositories
+│   │   └── presentation/           # UI components & interactive features
+│   ├── public/                     # Static assets & icons
+│   ├── out/                        # Production build output (static export)
+│   ├── next.config.mjs             # Next.js config (output: export)
+│   ├── tailwind.config.ts          # Tailwind CSS configuration
+│   └── package.json                # Dependencies & scripts
 └── README.md                       # Dokumentasi ini
 ```
 
@@ -171,9 +176,8 @@ sentra-desa/
 - Node.js >= 18.x (untuk Vite build)
 
 ### Frontend
-- Flutter SDK >= 3.10
-- Dart SDK >= 3.0
-- Chrome (untuk web development)
+- Node.js >= 18.x (disarankan 20.x LTS)
+- npm >= 9.x atau yarn / pnpm
 
 ---
 
@@ -213,25 +217,24 @@ npm install && npm run build
 php artisan serve
 ```
 
-### Frontend (Flutter Web)
+### Frontend (Next.js)
 
 ```bash
 # 1. Masuk ke folder frontend
-cd sentra_desa
+cd sentra-desa-frontend
 
 # 2. Install dependencies
-flutter pub get
+npm install
 
-# 3. Konfigurasi API endpoint
-# Edit lib/config/api_config.dart
-# - Development: uncomment baris localIp
-# - Production: gunakan https://sentradesa.id/api
+# 3. Konfigurasi environment
+cp .env.example .env.local
+# NEXT_PUBLIC_API_URL=https://sentradesa.id/api/v1 (atau /api/v1 untuk origin-relative)
 
 # 4. Jalankan development server
-flutter run -d chrome
+npm run dev
 
-# 5. Build untuk production
-flutter build web --release
+# 5. Build untuk production (static export ke out/)
+npm run build
 ```
 
 ---
@@ -263,9 +266,9 @@ php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 
-# 4. Build Flutter & upload
-cd sentra_desa && flutter build web --release
-rsync -avz build/web/ user@server:/var/www/html/sentradesa.id/flutter/
+# 4. Build Next.js & upload
+cd sentra-desa-frontend && npm run build
+rsync -avz out/ user@server:/var/www/html/sentradesa.id/frontend/
 
 # 5. Set permissions
 chown -R www-data:www-data /var/www/html/sentradesa.id/
@@ -278,8 +281,8 @@ server {
     listen 443 ssl http2;
     server_name sentradesa.id;
 
-    # Flutter Web (SPA)
-    root /var/www/html/sentradesa.id/flutter;
+    # Next.js Frontend (Static Export)
+    root /var/www/html/sentradesa.id/frontend;
     index index.html;
 
     # Laravel routes (admin, api, etc.)
@@ -298,9 +301,9 @@ server {
         expires 30d;
     }
 
-    # Flutter SPA fallback
+    # Next.js Static Export fallback
     location / {
-        try_files $uri $uri/ /index.html;
+        try_files $uri $uri/ $uri.html /index.html;
     }
 
     ssl_certificate /etc/letsencrypt/live/sentradesa.id/fullchain.pem;

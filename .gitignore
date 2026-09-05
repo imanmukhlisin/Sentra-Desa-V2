@@ -1,8 +1,9 @@
 # ============================================
 # SENTRA DESA — Root .gitignore
+# Stack: Laravel (Backend) + Next.js (Frontend)
 # ============================================
 
-# =============  OS Generated  ===============
+# =============  OS & System  ================
 .DS_Store
 .DS_Store?
 ._*
@@ -27,20 +28,24 @@ Desktop.ini
 !.vscode/launch.json
 !.vscode/extensions.json
 
-# Sublime Text
+# Sublime / Vim / Agent tools
 *.sublime-project
 *.sublime-workspace
-
-# Vim
 *.swp
 *.swo
-*~
+.antigravity/
+.gemini/
+
+# =============  Environment & Secrets  =======
+.env
+.env.*
+!.env.example
+!.env.*.example
 
 # =============  Laravel Backend  ============
 sentra-desa-backend/.env
-sentra-desa-backend/.env.backup
-sentra-desa-backend/.env.production
-sentra-desa-backend/.phpunit.result.cache
+sentra-desa-backend/.env.*
+!sentra-desa-backend/.env.example
 sentra-desa-backend/vendor/
 sentra-desa-backend/node_modules/
 sentra-desa-backend/public/hot
@@ -49,51 +54,48 @@ sentra-desa-backend/public/build/
 sentra-desa-backend/storage/*.key
 sentra-desa-backend/storage/framework/cache/data/*
 sentra-desa-backend/storage/framework/sessions/*
+sentra-desa-backend/storage/framework/testing/*
 sentra-desa-backend/storage/framework/views/*
 sentra-desa-backend/storage/logs/*
 sentra-desa-backend/bootstrap/cache/*
 !sentra-desa-backend/bootstrap/cache/.gitkeep
+sentra-desa-backend/.phpunit.result.cache
+sentra-desa-backend/.phpunit.cache/
 sentra-desa-backend/auth.json
-sentra-desa-backend/npm-debug.log
-sentra-desa-backend/yarn-error.log
+sentra-desa-backend/coverage/
 
-# =============  Flutter Frontend  ===========
-sentra_desa/.dart_tool/
-sentra_desa/.flutter-plugins
-sentra_desa/.flutter-plugins-dependencies
-sentra_desa/.pub-cache/
-sentra_desa/.pub/
-sentra_desa/build/
-sentra_desa/coverage/
-sentra_desa/.packages
-sentra_desa/pubspec.lock
+# =============  Next.js Frontend  ===========
+sentra-desa-frontend/.next/
+sentra-desa-frontend/out/
+sentra-desa-frontend/node_modules/
+sentra-desa-frontend/.env
+sentra-desa-frontend/.env.*
+!sentra-desa-frontend/.env.example
+sentra-desa-frontend/*.tsbuildinfo
+sentra-desa-frontend/.vercel/
+sentra-desa-frontend/.turbo/
 
-# Flutter generated files
-sentra_desa/android/app/debug/
-sentra_desa/android/app/profile/
-sentra_desa/android/app/release/
-sentra_desa/android/.gradle/
-sentra_desa/android/local.properties
-sentra_desa/android/key.properties
-sentra_desa/android/app/src/main/res/values/styles.xml.bak
-sentra_desa/ios/Flutter/.last_build_id
-sentra_desa/ios/Pods/
-sentra_desa/ios/.symlinks/
-sentra_desa/macos/Pods/
-sentra_desa/macos/.symlinks/
+# =============  General Dependencies & Build  =
+node_modules/
+vendor/
+.next/
+out/
+dist/
 
-# =============  Build Artifacts  ============
-*.class
+# =============  Logs & Temporary Artifacts  ==
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+*.bak
+*.tmp
+*.temp
+*.sqlite
+*.class
 *.pyc
 *.o
 *.so
 *.dll
-
-# =============  Misc  ======================
-*.bak
-*.tmp
-*.temp
-.env.local
-.env.*.local
-.github
