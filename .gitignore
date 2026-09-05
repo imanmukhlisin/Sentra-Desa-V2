@@ -1,0 +1,99 @@
+# ============================================
+# SENTRA DESA — Root .gitignore
+# ============================================
+
+# =============  OS Generated  ===============
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+*~
+
+# =============  IDEs & Editors  =============
+# IntelliJ / Android Studio
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# VS Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+
+# =============  Laravel Backend  ============
+sentra-desa-backend/.env
+sentra-desa-backend/.env.backup
+sentra-desa-backend/.env.production
+sentra-desa-backend/.phpunit.result.cache
+sentra-desa-backend/vendor/
+sentra-desa-backend/node_modules/
+sentra-desa-backend/public/hot
+sentra-desa-backend/public/storage
+sentra-desa-backend/public/build/
+sentra-desa-backend/storage/*.key
+sentra-desa-backend/storage/framework/cache/data/*
+sentra-desa-backend/storage/framework/sessions/*
+sentra-desa-backend/storage/framework/views/*
+sentra-desa-backend/storage/logs/*
+sentra-desa-backend/bootstrap/cache/*
+!sentra-desa-backend/bootstrap/cache/.gitkeep
+sentra-desa-backend/auth.json
+sentra-desa-backend/npm-debug.log
+sentra-desa-backend/yarn-error.log
+
+# =============  Flutter Frontend  ===========
+sentra_desa/.dart_tool/
+sentra_desa/.flutter-plugins
+sentra_desa/.flutter-plugins-dependencies
+sentra_desa/.pub-cache/
+sentra_desa/.pub/
+sentra_desa/build/
+sentra_desa/coverage/
+sentra_desa/.packages
+sentra_desa/pubspec.lock
+
+# Flutter generated files
+sentra_desa/android/app/debug/
+sentra_desa/android/app/profile/
+sentra_desa/android/app/release/
+sentra_desa/android/.gradle/
+sentra_desa/android/local.properties
+sentra_desa/android/key.properties
+sentra_desa/android/app/src/main/res/values/styles.xml.bak
+sentra_desa/ios/Flutter/.last_build_id
+sentra_desa/ios/Pods/
+sentra_desa/ios/.symlinks/
+sentra_desa/macos/Pods/
+sentra_desa/macos/.symlinks/
+
+# =============  Build Artifacts  ============
+*.class
+*.log
+*.pyc
+*.o
+*.so
+*.dll
+
+# =============  Misc  ======================
+*.bak
+*.tmp
+*.temp
+.env.local
+.env.*.local
+.github
