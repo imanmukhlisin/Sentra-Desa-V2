@@ -52,11 +52,14 @@ jobs:
           name: frontend-out
           path: sentra-desa-frontend/out
 
-      - name: Setup SSH Key
+      - name: Setup SSH Agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Add Known Hosts
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H 45.80.181.191 >> ~/.ssh/known_hosts
 
       - name: Deploy Backend (Laravel)
@@ -69,20 +72,18 @@ jobs:
             --exclude='storage/' \
             --exclude='bootstrap/cache/*' \
             --exclude='.phpunit.*' \
-            -e "ssh -i ~/.ssh/id_ed25519" \
             sentra-desa-backend/ \
             root@45.80.181.191:/var/www/sentradesa.id/sentra-desa-backend/
 
       - name: Deploy Frontend (Next.js)
         run: |
           rsync -avz \
-            -e "ssh -i ~/.ssh/id_ed25519" \
             sentra-desa-frontend/out/ \
             root@45.80.181.191:/var/www/html/sentradesa.id/nextjs/
 
       - name: Post-Deployment Tasks & Reload Services
         run: |
-          ssh -i ~/.ssh/id_ed25519 root@45.80.181.191 "
+          ssh root@45.80.181.191 "
             set -e
             cd /var/www/sentradesa.id/sentra-desa-backend
             COMPOSER_ALLOW_SUPERUSER=1 composer install --optimize-autoloader --no-dev --ignore-platform-reqs
