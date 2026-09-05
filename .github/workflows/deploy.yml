@@ -1,0 +1,99 @@
+name: Deploy to VPS Production
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: production_deploy
+  cancel-in-progress: false
+
+jobs:
+  build-frontend:
+    name: Build Next.js Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: 'sentra-desa-frontend/package-lock.json'
+
+      - name: Install & Build Frontend
+        run: |
+          cd sentra-desa-frontend
+          npm ci || npm install
+          npm run build
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-out
+          path: sentra-desa-frontend/out/
+          retention-days: 1
+
+  deploy:
+    name: Deploy to VPS
+    runs-on: ubuntu-latest
+    needs: build-frontend
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Download Frontend Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-out
+          path: sentra-desa-frontend/out
+
+      - name: Setup SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H 45.80.181.191 >> ~/.ssh/known_hosts
+
+      - name: Deploy Backend (Laravel)
+        run: |
+          rsync -avz \
+            --exclude='.env*' \
+            --exclude='vendor/' \
+            --exclude='node_modules/' \
+            --exclude='.git/' \
+            --exclude='storage/' \
+            --exclude='bootstrap/cache/*' \
+            --exclude='.phpunit.*' \
+            -e "ssh -i ~/.ssh/id_ed25519" \
+            sentra-desa-backend/ \
+            root@45.80.181.191:/var/www/sentradesa.id/sentra-desa-backend/
+
+      - name: Deploy Frontend (Next.js)
+        run: |
+          rsync -avz \
+            -e "ssh -i ~/.ssh/id_ed25519" \
+            sentra-desa-frontend/out/ \
+            root@45.80.181.191:/var/www/html/sentradesa.id/nextjs/
+
+      - name: Post-Deployment Tasks & Reload Services
+        run: |
+          ssh -i ~/.ssh/id_ed25519 root@45.80.181.191 "
+            set -e
+            cd /var/www/sentradesa.id/sentra-desa-backend
+            COMPOSER_ALLOW_SUPERUSER=1 composer install --optimize-autoloader --no-dev --ignore-platform-reqs
+            php artisan migrate --force
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+            chown -R www-data:www-data .
+            chmod -R 755 app/ config/ routes/ database/ resources/ storage/ bootstrap/
+            chmod -R 644 app/**/*.php config/*.php routes/*.php 2>/dev/null || true
+            chown -R www-data:www-data /var/www/html/sentradesa.id/nextjs
+            chmod -R 755 /var/www/html/sentradesa.id/nextjs
+            nginx -t && systemctl reload nginx
+          "
