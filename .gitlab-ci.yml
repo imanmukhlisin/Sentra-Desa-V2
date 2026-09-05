@@ -48,9 +48,7 @@ deploy_to_vps:
     - job: build_frontend
       artifacts: true
   before_script:
-    # 1. Install SSH client & Rsync
     - apk add --no-cache openssh-client rsync bash
-    # 2. Siapkan SSH Agent dan masukkan Private Key dari Secret Variables
     - eval $(ssh-agent -s)
     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
     - mkdir -p ~/.ssh
@@ -59,40 +57,36 @@ deploy_to_vps:
     - chmod 644 ~/.ssh/known_hosts
   script:
     - echo "=== 1. Deploying Backend to VPS ==="
-    # Rsync backend (tidak menimpa .env, vendor, storage, dan logs)
-    - rsync -avz \
-        --exclude='.env*' \
-        --exclude='vendor/' \
-        --exclude='node_modules/' \
-        --exclude='.git/' \
-        --exclude='storage/' \
-        --exclude='bootstrap/cache/*' \
-        --exclude='.phpunit.*' \
-        sentra-desa-backend/ \
-        "$VPS_USER@$VPS_HOST:$BACKEND_DEST/"
-
+    - >-
+      rsync -avz
+      --exclude='.env*'
+      --exclude='vendor/'
+      --exclude='node_modules/'
+      --exclude='.git/'
+      --exclude='storage/'
+      --exclude='bootstrap/cache/*'
+      --exclude='.phpunit.*'
+      sentra-desa-backend/
+      "$VPS_USER@$VPS_HOST:$BACKEND_DEST/"
     - echo "=== 2. Deploying Frontend to VPS ==="
-    # Rsync hasil export static Next.js ke web root Nginx
-    - rsync -avz \
-        sentra-desa-frontend/out/ \
-        "$VPS_USER@$VPS_HOST:$FRONTEND_DEST/"
-
+    - rsync -avz sentra-desa-frontend/out/ "$VPS_USER@$VPS_HOST:$FRONTEND_DEST/"
     - echo "=== 3. Running Post-Deployment Tasks on Server ==="
-    - ssh "$VPS_USER@$VPS_HOST" "
-        set -e &&
-        cd $BACKEND_DEST &&
-        COMPOSER_ALLOW_SUPERUSER=1 composer install --optimize-autoloader --no-dev --ignore-platform-reqs &&
-        php artisan migrate --force &&
-        php artisan config:cache &&
-        php artisan route:cache &&
-        php artisan view:cache &&
-        chown -R www-data:www-data . &&
-        chmod -R 755 app/ config/ routes/ database/ resources/ storage/ bootstrap/ &&
-        chmod -R 644 app/**/*.php config/*.php routes/*.php 2>/dev/null || true &&
-        chown -R www-data:www-data $FRONTEND_DEST &&
-        chmod -R 755 $FRONTEND_DEST &&
-        nginx -t && systemctl reload nginx
-      "
+    - |
+      ssh "$VPS_USER@$VPS_HOST" bash -s << 'EOF'
+      set -e
+      cd /var/www/sentradesa.id/sentra-desa-backend
+      COMPOSER_ALLOW_SUPERUSER=1 composer install --optimize-autoloader --no-dev --ignore-platform-reqs
+      php artisan migrate --force
+      php artisan config:cache
+      php artisan route:cache
+      php artisan view:cache
+      chown -R www-data:www-data .
+      chmod -R 755 app/ config/ routes/ database/ resources/ storage/ bootstrap/
+      chmod -R 644 app/**/*.php config/*.php routes/*.php 2>/dev/null || true
+      chown -R www-data:www-data /var/www/html/sentradesa.id/nextjs
+      chmod -R 755 /var/www/html/sentradesa.id/nextjs
+      nginx -t && systemctl reload nginx
+      EOF
     - echo "=== Deployment Selesai! Website live di https://sentradesa.id ==="
   rules:
     - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "production"'
