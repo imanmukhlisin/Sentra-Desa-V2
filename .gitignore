@@ -35,6 +35,10 @@ Desktop.ini
 *.swo
 .antigravity/
 .gemini/
+AGENTS.md
+CLAUDE.md
+deploy*.sh
+deploy*.ps1
 
 # =============  Environment & Secrets  =======
 .env
